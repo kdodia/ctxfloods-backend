@@ -1,7 +1,8 @@
 require('promise.prototype.finally').shim();
 const path = require('path');
 
-const getClient = require('./cons/getClient');
+const getFloodsAdminClient = require('./cons/getFloodsAdminClient');
+const getMasterClient = require('./cons/getMasterClient');
 const floodsExists = require('./floodsExists');
 const initialize = require('./initialize');
 const migrate = require('./migrate');
@@ -18,7 +19,7 @@ let localServer, masterClient, floodsClient, errFlag = false, newInstance = fals
   Idempotent - can be run multiple times without contaminating data.
   Seed script only runs at first db initialization.
 **/
-getClient("master")
+getMasterClient()
 .then((result) => {
   masterClient = result;
   return floodsExists(masterClient);
@@ -33,7 +34,7 @@ getClient("master")
 .then(() => {
   if (newInstance) {
     console.log("Seeding data for new floods database");
-    return getClient("floodsAPI")
+    return getFloodsAdminClient()
     .then((result) => {
       floodsClient = result;
       return seed(floodsClient)

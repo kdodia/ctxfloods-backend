@@ -4,6 +4,8 @@ const commandLineRun = require("./helpers/commandLineRun")
 
 const addWazeStreets = require('../populateDB/data/addWazeStreets');
 const addLegacyCrossings = require('../populateDB/data/addLegacyCrossings');
+const getFloodsClient = require('./cons/getFloodsClient');
+
 let localServer;
 /**
   Seeds a database with
@@ -30,7 +32,6 @@ const seed = (client) => {
     }
     console.log("Adding Waze Streets");
     await addWazeStreets();
-    console.log("Skipping??")
   })
   .then(async () => {
     await addLegacyCrossings()
@@ -48,5 +49,5 @@ const seed = (client) => {
 module.exports = seed;
 
 if (require.main === module) {
-  commandLineRun(seed, "floodsAPI");
+  commandLineRun(seed, getFloodsClient);
 }

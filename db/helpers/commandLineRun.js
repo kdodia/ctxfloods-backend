@@ -1,13 +1,12 @@
 require('promise.prototype.finally').shim();
-const getClient = require('../cons/getClient');
 /**
   Wrapper function that builds and safely destroys a db connection for a node postgres script.
   @param: cb, Function - a node pg script that requires a db connection
   @param: clientType, String - param for getClient, either "floodsAPI" or "master"
 **/
-module.exports = (cb, clientType) => {
+module.exports = (cb, getClient) => {
   let client, errFlag = false;
-  return getClient(clientType)
+  return getClient()
   .then((result) => {
     client = result;
     return cb(client)

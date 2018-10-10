@@ -25,9 +25,9 @@ async function addWazeStreets() {
       `
       mutation(
         $id: Int,
-        $longitude: Float,
-        $latitude: Float,
-        $distance: Float,
+        $longitude: BigFloat,
+        $latitude: BigFloat,
+        $distance: BigFloat,
         $name: String,
         $names: [String],
         $createdAt: Datetime,

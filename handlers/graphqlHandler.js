@@ -1,17 +1,77 @@
 'use strict';
-const fs = require('fs');
-const graphql = require('graphql').graphql;
-const Client = require('pg').Client;
-
-const PgCatalogBuilder = require('postgraphql/build/postgres/introspection/PgCatalog');
-const createPostGraphQLSchema = require('postgraphql/build/postgraphql/schema/createPostGraphQLSchema');
-const pgClientFromContext = require('postgraphql/build/postgres/inventory/pgClientFromContext');
-const setupRequestPgClientTransaction = require('postgraphql/build/postgraphql/http/setupRequestPgClientTransaction');
-const PgCat = JSON.parse(fs.readFileSync('pgCatalog/pgCatalog.json', 'utf8'));
+require('promise.prototype.finally').shim();
+process.env.DEBUG="graphile-build:warn";
+const {createPostGraphileSchema, withPostGraphileContext} = require("postgraphile");
+const {graphql} = require('graphql');
 
 const { logError } = require('./logger');
+const floodsPool = require('../db/cons/getFloodsPool');
 
 module.exports.handle = (event, context, cb) => {
+  let schema;
+
+  return createPostGraphileSchema(floodsPool, "floods", {
+    pgDefaultRole: 'floods_anonymous',
+    jwtSecret: process.env.JWT_SECRET,
+    jwtPgTypeIdentifier: 'floods.jwt_token',
+    pgDefaultRole: 'floods_anonymous',
+    disableDefaultMutations: true,
+    readCache: `${__dirname}/../pgCatalog/postgraphile.cache`
+  })
+  .then((result) => {
+    schema = result;
+    console.log("what is in my event? wheres my token?", event)
+    let authHeader = (event.headers && event.headers.Authorization) || null;
+    const jwtToken = (authHeader ? authHeader.split("Bearer ")[1] : null);
+    // console.log("jwtToken", jwtToken)
+    return withPostGraphileContext(
+      {
+        pgPool: floodsPool,
+        jwtToken: jwtToken,
+        jwtSecret: process.env.JWT_SECRET,
+        pgDefaultRole: 'floods_anonymous'
+      }, (graphileContext) => {
+        console.log("look at the graphile context.", graphileContext)
+        return graphql(
+          schema,
+          event.query,
+          null,
+          graphileContext,
+          event.variables,
+          event.operationName
+        )
+      })
+  })
+  .then((response)=> {
+    // console.log("Did something happen?", response)
+    response.statusCode = 200;
+    response.headers = { 'Access-Control-Allow-Origin': '*' };
+    cb(null, response);
+  })
+  .catch((err)=>{
+    console.log("There was a terrible error", err)
+    response.statusCode = 500;
+    response.headers = { 'Access-Control-Allow-Origin': '*' };
+    let response = {};
+    response.errors = err
+    cb(null, response)
+  })
+}
+
+
+
+
+
+
+
+
+
+
+
+/**
+
+
+
 
   // Setup connection to PostgresDB
   const pgClient = new Client(require('./constants').PGCON);
@@ -80,3 +140,5 @@ module.exports.handle = (event, context, cb) => {
       pgClient.end();
     });
 };
+
+**/

@@ -2,7 +2,8 @@ require('promise.prototype.finally').shim();
 const fs = require('fs');
 const path = require('path');
 
-const getClient = require('./cons/getClient');
+const getFloodsAdminClient = require('./cons/getFloodsAdminClient');
+const getMasterClient = require('./cons/getMasterClient');
 const floodsExists = require('./floodsExists');
 
 let floodsClient, masterClient, errFlag = false;
@@ -16,7 +17,7 @@ let floodsClient, masterClient, errFlag = false;
 **/
 const dropFloodsData = (destroy=false) => {
   console.log("Begin Dropping Floods Data");
-  getClient("master")
+  getMasterClient()
   .then((result) => {
     masterClient = result;
     return floodsExists(masterClient);
@@ -29,7 +30,7 @@ const dropFloodsData = (destroy=false) => {
         process.exit(0);
       })
     }
-    return getClient("floodsAPI")
+    return getFloodsAdminClient()
   })
   .then((result) => {
     floodsClient = result;

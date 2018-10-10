@@ -3,6 +3,7 @@ const path = require('path');
 
 const floodsExists = require('./floodsExists');
 const commandLineRun = require('./helpers/commandLineRun');
+const getMasterClient = require('./cons/getMasterClient');
 
 const initialize = (client) => {
   console.log("Creating Floods Database")
@@ -20,5 +21,5 @@ const initialize = (client) => {
 module.exports = initialize;
 
 if (require.main === module) {
-  commandLineRun(initialize, "master");
+  commandLineRun(initialize, getMasterClient);
 }
