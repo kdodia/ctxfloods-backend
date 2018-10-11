@@ -7,6 +7,12 @@ const {graphql} = require('graphql');
 const { logError } = require('./logger');
 const floodsPool = require('../db/cons/getFloodsPool');
 
+const extractToken = (event) => {
+  let authHeader = (event.headers && event.headers.authorization) || null;
+  let jwtToken = (authHeader ? authHeader.split("Bearer ")[1] : null);
+  return jwtToken || null;
+}
+
 module.exports.handle = (event, context, cb) => {
   let schema;
 
@@ -20,10 +26,7 @@ module.exports.handle = (event, context, cb) => {
   })
   .then((result) => {
     schema = result;
-    console.log("what is in my event? wheres my token?", event)
-    let authHeader = (event.headers && event.headers.Authorization) || null;
-    const jwtToken = (authHeader ? authHeader.split("Bearer ")[1] : null);
-    // console.log("jwtToken", jwtToken)
+    const jwtToken = extractToken(event);
     return withPostGraphileContext(
       {
         pgPool: floodsPool,
@@ -31,7 +34,7 @@ module.exports.handle = (event, context, cb) => {
         jwtSecret: process.env.JWT_SECRET,
         pgDefaultRole: 'floods_anonymous'
       }, (graphileContext) => {
-        console.log("look at the graphile context.", graphileContext)
+        console.log("Whats the query?", event.query)
         return graphql(
           schema,
           event.query,
@@ -43,7 +46,7 @@ module.exports.handle = (event, context, cb) => {
       })
   })
   .then((response)=> {
-    // console.log("Did something happen?", response)
+    console.log("Did something happen?", response)
     response.statusCode = 200;
     response.headers = { 'Access-Control-Allow-Origin': '*' };
     cb(null, response);
