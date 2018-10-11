@@ -8,7 +8,7 @@ const { logError } = require('./logger');
 const floodsPool = require('../db/cons/getFloodsPool');
 
 const extractToken = (event) => {
-  let authHeader = (event.headers && event.headers.authorization) || null;
+  let authHeader = (event.headers && event.headers.Authorization) || null;
   let jwtToken = (authHeader ? authHeader.split("Bearer ")[1] : null);
   return jwtToken || null;
 }
@@ -34,7 +34,6 @@ module.exports.handle = (event, context, cb) => {
         jwtSecret: process.env.JWT_SECRET,
         pgDefaultRole: 'floods_anonymous'
       }, (graphileContext) => {
-        console.log("Whats the query?", event.query)
         return graphql(
           schema,
           event.query,
@@ -46,102 +45,14 @@ module.exports.handle = (event, context, cb) => {
       })
   })
   .then((response)=> {
-    console.log("Did something happen?", response)
     response.statusCode = 200;
     response.headers = { 'Access-Control-Allow-Origin': '*' };
     cb(null, response);
   })
   .catch((err)=>{
-    console.log("There was a terrible error", err)
+    logError(err);
     response.statusCode = 500;
     response.headers = { 'Access-Control-Allow-Origin': '*' };
-    let response = {};
-    response.errors = err
-    cb(null, response)
+    cb(null, {errors: err})
   })
 }
-
-
-
-
-
-
-
-
-
-
-
-/**
-
-
-
-
-  // Setup connection to PostgresDB
-  const pgClient = new Client(require('./constants').PGCON);
-  pgClient.connect();
-
-  // Parse PgCatalog
-  const PgCatalog = new PgCatalogBuilder.default(PgCat);
-
-  // Set postgraphql options
-  // For all options see https://github.com/calebmer/postgraphql/blob/master/docs/library.md
-  const options = {
-    pgDefaultRole: 'floods_anonymous',
-    jwtSecret: process.env.JWT_SECRET,
-    jwtPgTypeIdentifier: 'floods.jwt_token',
-    pgDefaultRole: 'floods_anonymous',
-    disableDefaultMutations: true,
-  };
-  let gqlSchema;
-  createPostGraphQLSchema
-    .default(pgClient, PgCatalog, options)
-    .then(schema => {
-      try {
-        gqlSchema = schema;
-        // To be honest i am not 100% that the following
-        // proppery uses 'begin' ... 'commit'
-        pgClient.query('begin').then(() => {
-          setupRequestPgClientTransaction
-            .default(event, pgClient, {
-              jwtSecret: options.jwtSecret,
-              pgDefaultRole: options.pgDefaultRole,
-            })
-            .then(pgRole => {
-              graphql(
-                gqlSchema,
-                event.query,
-                null,
-                { [pgClientFromContext.$$pgClient]: pgClient },
-                event.variables,
-                event.operationName,
-              )
-                .then(response => {
-                  pgClient.end();
-
-                  response.statusCode = 200;
-                  response.headers = { 'Access-Control-Allow-Origin': '*' };
-                  cb(null, response);
-                })
-                .catch(() => cb(e));
-            })
-            .then(() => pgClient.query('commit'))
-            .catch(err => {
-              logError(err);
-              cb(null, { errors: [err] });
-              pgClient.end();
-            });
-        });
-      } catch (err) {
-        logError(err);
-        cb(null, { errors: [err] });
-        pgClient.end();
-      }
-    })
-    .catch(err => {
-      logError(err);
-      cb(null, { errors: [err] });
-      pgClient.end();
-    });
-};
-
-**/

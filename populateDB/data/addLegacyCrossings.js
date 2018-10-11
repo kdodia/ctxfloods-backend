@@ -15,7 +15,7 @@ async function loadCsv(path) {
 async function addCrossing(lokka, crossing) {
   const response = await lokka.send(
     `
-    mutation($name:String!, $communityId:Int!, $legacyId:Int, $humanAddress:String!, $latitude:Float!, $longitude:Float!, $description:String, $wazeStreetId:Int) {
+    mutation($name:String!, $communityId:Int!, $legacyId:Int, $humanAddress:String!, $latitude:BigFloat!, $longitude:BigFloat!, $description:String, $wazeStreetId:Int) {
       newCrossing(input: {name:$name, communityId:$communityId, legacyId:$legacyId, humanAddress:$humanAddress, longitude:$longitude, latitude:$latitude, description:$description, wazeStreetId: $wazeStreetId}) {
         crossing {
           id

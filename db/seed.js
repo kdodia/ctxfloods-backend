@@ -33,6 +33,7 @@ const seed = (client) => {
     console.log("Adding Waze Streets");
     await addWazeStreets();
   })
+  return Promise.resolve()
   .then(async () => {
     await addLegacyCrossings()
   })

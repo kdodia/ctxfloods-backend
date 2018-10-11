@@ -47,7 +47,7 @@ functions:
                   "operationName" : "$util.escapeJavaScript($input.path('$.operationName'))",
                   "headers" : {
                      #if( $input.params().header.get('Authorization').toString() != "" )
-                        "authorization" : "$input.params().header.get('Authorization')"
+                        "Authorization" : "$input.params().header.get('Authorization')"
                      #end
                   }
                 }
@@ -56,7 +56,7 @@ functions:
                   "query" : "$util.escapeJavaScript($input.body)",
                   "headers" : {
                      #if( $input.params().header.get('Authorization').toString() != "" )
-                        "authorization" : "$input.params().header.get('Authorization')"
+                        "Authorization" : "$input.params().header.get('Authorization')"
                      #end
                   }
                 }
@@ -81,7 +81,7 @@ functions:
                   "operationName" : "$util.escapeJavaScript($input.params('operationName'))",
                   "headers" : {
                      #if( $input.params().header.get('Authorization').toString() != "" )
-                        "authorization" : "$input.params().header.get('Authorization')"
+                        "Authorization" : "$input.params().header.get('Authorization')"
                      #end
                   }
                 }
