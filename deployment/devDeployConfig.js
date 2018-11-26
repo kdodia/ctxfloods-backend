@@ -19,5 +19,10 @@ module.exports = {
     deploy: true,
     seed: true,
     pushNotifications: true
+  },
+  "sandbox-1": {
+    deploy: true,
+    seed: true,
+    pushNotifications: true
   }
 };
