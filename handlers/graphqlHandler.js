@@ -12,12 +12,14 @@ const extractToken = (event) => {
   return jwtToken || null;
 }
 
+const floodsPool = require('../db/helpers/getClient')({
+  clientType: 'floodsAPI',
+  pool: true
+});
+
 module.exports.handle = (event, context, cb) => {
+  context.callbackWaitsForEmptyEventLoop = false; // Allows you to persist floodsPool after lambda invocation
   let schema;
-  const floodsPool = require('../db/helpers/getClient')({
-    clientType: 'floodsAPI',
-    pool: true
-  });
 
   return createPostGraphileSchema(floodsPool, "floods", {
     jwtSecret: process.env.JWT_SECRET,
@@ -58,11 +60,5 @@ module.exports.handle = (event, context, cb) => {
     response.headers = { 'Access-Control-Allow-Origin': '*' };
     response.errors = [err];
     cb(null, response)
-  })
-  .finally(() => {
-    return floodsPool.end()
-    .catch((err) => {
-      logError(err);
-    })
   })
 }

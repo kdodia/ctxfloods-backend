@@ -41,5 +41,9 @@ module.exports = {
   "195-camera": {
     deploy: true,
     seed: true
+  },
+  "425-scale": {
+    deploy: true,
+    seed: true
   }
 };

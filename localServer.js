@@ -16,7 +16,7 @@ app.use(express.json({ limit: '500kb', extended: true})); // High Limit is requi
 app.use(express.urlencoded({ limit: '500kb', extended: true }));
 
 app.get('/xml', (req, res) => {
-  xmlHandler.handle(null, null, (error, response) => {
+  xmlHandler.handle(null, {}, (error, response) => {
     res.statusCode = response.statusCode;
     res.setHeader('Content-Type', response.headers['Content-Type']);
     res.send(response.body);
@@ -24,7 +24,7 @@ app.get('/xml', (req, res) => {
 });
 
 app.get('/waze/feed', (req, res) => {
-  wazeFeedHandler.handle(null, null, (error, response) => {
+  wazeFeedHandler.handle(null, {}, (error, response) => {
     res.statusCode = response.statusCode;
     res.setHeader('Content-Type', response.headers['Content-Type']);
     res.send(response.body);
@@ -34,7 +34,7 @@ app.get('/waze/feed', (req, res) => {
 app.all('/graphql', (req, res) => {
   var event = req.body;
   event.headers = req.headers;
-  graphqlHandler.handle(req.body, null, (error, response) => {
+  graphqlHandler.handle(req.body, {}, (error, response) => {
     res.statusCode = response.statusCode;
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.end(JSON.stringify({ data: response.data, errors: response.errors }));
@@ -44,7 +44,7 @@ app.all('/graphql', (req, res) => {
 app.post('/incident/report', (req, res) => {
   // AWS gets body as stringified json
   req.body = JSON.stringify(req.body);
-  incidentReportHandler.handle(req, null, (error, response) => {
+  incidentReportHandler.handle(req, {}, (error, response) => {
     res.statusCode = response.statusCode;
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', response.headers['Content-Type']);
@@ -55,7 +55,7 @@ app.post('/incident/report', (req, res) => {
 app.post('/email/reset', (req, res) => {
   // AWS gets body as stringified json
   req.body = JSON.stringify(req.body);
-  resetEmailHandler.handle(req, null, (error, response) => {
+  resetEmailHandler.handle(req, {}, (error, response) => {
     res.statusCode = response.statusCode;
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.send(response);
@@ -66,7 +66,7 @@ app.get('/sync_legacy', (req, res) => {
   // AWS gets body as stringified json
   req.body = JSON.stringify(req.body);
 
-  syncLegacyHandler.handle(req, null, (error, response) => {
+  syncLegacyHandler.handle(req, {}, (error, response) => {
     res.statusCode = response.statusCode;
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.send(response);
@@ -77,7 +77,7 @@ app.get('/send_push_notifications', (req, res) => {
   // AWS gets body as stringified json
   req.body = JSON.stringify(req.body);
 
-  pushNotificationHandler.handle(req, null, (error, response) => {
+  pushNotificationHandler.handle(req, {}, (error, response) => {
     res.statusCode = response.statusCode;
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.send(response);
@@ -88,7 +88,7 @@ app.get('/scrape_cameras', (req, res) => {
   // AWS gets body as stringified json
   req.body = JSON.stringify(req.body);
 
-  cameraScrapeHandler.handle(req, null, (error, response) => {
+  cameraScrapeHandler.handle(req, {}, (error, response) => {
     res.statusCode = response.statusCode;
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.send(response);
